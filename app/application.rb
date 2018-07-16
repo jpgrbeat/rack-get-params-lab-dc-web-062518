@@ -1,10 +1,35 @@
+ require 'pry'
 class Application
 
   @@items = ["Apples","Carrots","Pears"]
+  @@cart = []
 
   def call(env)
     resp = Rack::Response.new
     req = Rack::Request.new(env)
+
+    if @@cart == []
+      resp.write "Your cart is empty"
+    end
+
+    if req.path.match(/cart/)
+      @@cart.each do |item|
+        resp.write "#{item}\n"
+      end
+    end
+    if req.path.match(/add/)
+      search_term = req.params['item']
+      # binding.pry
+      if @@items.include?(search_term)
+        # binding.pry
+        num = @@items.index(search_term)
+        i = @@items[num]
+        @@cart << i
+        resp.write "added #{search_term}"
+      else
+        resp.write "We don't have that item"
+      end
+    end
 
     if req.path.match(/items/)
       @@items.each do |item|
